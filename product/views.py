@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from product.models import Product, Review, Category
-from product.serializers import ProductSerializers, ReviewSerializers, CategorySerializers
+from product.serializers import ProductSerializers, ReviewSerializers, CategorySerializers, ProductReviewSerializer
 
 
 @api_view(['GET'])
@@ -51,4 +51,11 @@ def category_detail_api_view(request, id):
     if request.method == 'GET':
         category = Category.objects.get(id=id)
         serializers = CategorySerializers(category)
+        return Response(serializers.data, status.HTTP_200_OK)
+
+@api_view(['GET'])
+def product_reviews_list_api_view(request):
+    if request.method == 'GET':
+        product = Product.objects.all()
+        serializers = ProductReviewSerializer(product, many=True)
         return Response(serializers.data, status.HTTP_200_OK)
