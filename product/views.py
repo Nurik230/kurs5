@@ -3,7 +3,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from product.models import Product, Review, Category
-from product.serializers import ProductSerializers, ReviewSerializers, CategorySerializers, ProductReviewSerializer
+from product.serializers import ProductSerializers, ReviewSerializers, CategorySerializers, ProductReviewSerializer, \
+    ProductValidateSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -13,11 +14,10 @@ def product_list_api_view(request):
         serializers = ProductSerializers(product, many=True)
         return Response(serializers.data, status.HTTP_200_OK)
     elif request.method == 'POST':
-        serializers = ProductSerializers(data=request.data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data, status.HTTP_200_OK)
-        return Response(status.HTTP_400_BAD_REQUEST)
+        serializer = ProductValidateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -30,7 +30,7 @@ def product_detail_api_view(request, id):
         serializers = ProductSerializers(product)
         return Response(serializers.data, status.HTTP_200_OK)
     elif request.method == 'PUT':
-        serializers = ProductSerializers(product, data=request.data)
+        serializers = ProductValidateSerializer(product, data=request.data)
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data, status.HTTP_200_OK)
@@ -94,7 +94,6 @@ def category_detail_api_view(request, id):
     try:
         category = Category.objects.get(id=id)
         if request.method == 'GET':
-            category = Category.objects.get(id=id)
             serializers = CategorySerializers(category)
             return Response(serializers.data, status.HTTP_200_OK)
         elif request.method == 'PUT':
