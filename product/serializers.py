@@ -37,6 +37,7 @@ class ProductValidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'title', 'description', 'price', 'category', 'tags')
+        extra_kwargs = {'tags': {'read_only': True}}
 
     def validate_tags(self, value: list):
         for tag_id in value:
